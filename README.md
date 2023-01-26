@@ -15,11 +15,12 @@ If you choose other method of running application, make sure that name of databa
 
 ## Database
 
-1. To create database structer run `php artisan migrate` or `sail artisan migrate`
-2. Seed database with `php artisan db:seed` or `sail artisan db:seed`
+1. To create database structer run `./vendor/bin/sail artisan migrate`
+2. Seed database with `./vendor/bin/sail artisan db:seed`
 3. If needed, database state can be refreshed with `./vendor/bin/sail artisan migrate:refresh --seed`
 
 ## Running
+
 Application will be servered on localhost:8081. Calling `http://localhost:8081` in browser will open currency purchasing page, as per request.Example call API: http://localhost:8081//api/currencies
 
 ## REST API
@@ -62,7 +63,9 @@ Example of result:
 `PATCH /api/order/action/discount/for/EUR` and with body `{parameter: 5}` will set 5% discount on purchasing EUR.
 
 ## Troubleshooting
+
 If sail wont start beacuse of port collison, change ports stated in APP_PORT and DB_PORT parameters, then refresh configuration.
+    
 ---
 To avoid problems with storing session data, wirting rights should be set on <project_root>/storage folder:
 
