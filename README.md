@@ -1,61 +1,23 @@
 # Instalation instructions
 
-It is assumed that you have globaly installed PHP, Composer and development server (Sail, eg). If Sail is used, it should be globaly accessible. Asure that mailhog is available for checking mail sending functionality
+It is assumed that you have globaly installed PHP 8.x, Composer and development server (Sail, eg). Clone the project into desired folder
+
+```
+git clone https://github.com/krdr-mft/menu-exercise.git
+```
+
+Sail is already installed in project therefore, it is enough to run
+```
+./vendor/bin/sail up
+```
+
+If you choose other method of running application, make sure that name of database shold be **laravel**
 
 ## Database
 
 1. To create database structer run `php artisan migrate` or `sail artisan migrate`
-2 Seed database with `php artisan db:seed` or `sail artisan db:seed`
-3. If needed, database state can be refreshed with `php artisan migrate:refresh --seed` or `sail artisan migrate:refresh --seed`
-
-## Application
-
-To avoid problems with storing session data, wirting rights should be set on <project_root>/storage folder:
-
-```
-chmod -R gu+w storage
-chmod -R guo+w storage
-php artisan optimize:clear  //or sail artisan otimize:clear
-```
-
-Install mailgun
-```
-composer require symfony/mailgun-mailer symfony/http-client
-```
-and check configuration <project_root>/config/services.php:
-```
-    'mailgun' => [
-        'domain' => env('MAILGUN_DOMAIN'),
-        'secret' => env('MAILGUN_SECRET'),
-        'endpoint' => env('MAILGUN_ENDPOINT', 'api.eu.mailgun.net'),
-    ],
-```
-Also, check in .env file is MAIL_FROM_ADDRESS set:
-
-```
-MAIL_FROM_ADDRESS=example@gmail.com
-```
-
-If changes are made on any of configuration files, run:
-```
-php artisan optimize:clear  //or sail artisan otimize:clear
-```
-
-## Running
-```
-php artisan serve
-```
-or:
-```
-sail up
-```
-
-Application will run on URL stated in .env, parameter APP_URL and on port APP_PORT. Eg:
-```
-APP_URL=http://localhost
-APP_PORT=8081
-```
-means that application is accessible on http://localhost:8081
+2. Seed database with `php artisan db:seed` or `sail artisan db:seed`
+3. If needed, database state can be refreshed with `./vendor/bin/sail artisan migrate:refresh --seed`
 
 ## REST API
 
@@ -98,3 +60,34 @@ Example of result:
 
 ## Troubleshooting
 If sail wont start beacuse of port collison, change ports stated in APP_PORT and DB_PORT parameters, then refresh configuration.
+---
+To avoid problems with storing session data, wirting rights should be set on <project_root>/storage folder:
+
+```
+chmod -R gu+w storage
+chmod -R guo+w storage
+php artisan optimize:clear  //or sail artisan otimize:clear
+```
+---
+To install mailgun, if needed:
+```
+composer require symfony/mailgun-mailer symfony/http-client
+```
+and check configuration <project_root>/config/services.php:
+```
+    'mailgun' => [
+        'domain' => env('MAILGUN_DOMAIN'),
+        'secret' => env('MAILGUN_SECRET'),
+        'endpoint' => env('MAILGUN_ENDPOINT', 'api.eu.mailgun.net'),
+    ],
+```
+Also, check in .env file is MAIL_FROM_ADDRESS set:
+
+```
+MAIL_FROM_ADDRESS=example@gmail.com
+```
+---
+If changes are made on any of configuration files, be sure to run:
+```
+./vendor/bin/sail artisan otimize:clear
+```
