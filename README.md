@@ -1,64 +1,94 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Instalation instructions
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+It is assumed that you have globaly installed PHP, Composer and development server (Sail, eg). If Sail is used, it should be globaly accessible. Asure that mailhog is available for checking mail sending functionality
 
-## About Laravel
+## Database
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+1. To create database structer run `php artisan migrate` or `sail artisan migrate`
+2 Seed database with `php artisan db:seed` or `sail artisan db:seed`
+3. If needed, database state can be refreshed with `php artisan migrate:refresh --seed` or `sail artisan migrate:refresh --seed`
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Application
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+To avoid problems with storing session data, wirting rights should be set on <project_root>/storage folder:
 
-## Learning Laravel
+```
+chmod -R gu+w storage
+chmod -R guo+w storage
+php artisan optimize:clear  //or sail artisan otimize:clear
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Install mailgun
+```
+composer require symfony/mailgun-mailer symfony/http-client
+```
+and check configuration <project_root>/config/services.php:
+```
+    'mailgun' => [
+        'domain' => env('MAILGUN_DOMAIN'),
+        'secret' => env('MAILGUN_SECRET'),
+        'endpoint' => env('MAILGUN_ENDPOINT', 'api.eu.mailgun.net'),
+    ],
+```
+Also, check in .env file is MAIL_FROM_ADDRESS set:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```
+MAIL_FROM_ADDRESS=example@gmail.com
+```
 
-## Laravel Sponsors
+If changes are made on any of configuration files, run:
+```
+php artisan optimize:clear  //or sail artisan otimize:clear
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+## Running
+```
+php artisan serve
+```
+or:
+```
+sail up
+```
 
-### Premium Partners
+Application will run on URL stated in .env, parameter APP_URL and on port APP_PORT. Eg:
+```
+APP_URL=http://localhost
+APP_PORT=8081
+```
+means that application is accessible on http://localhost:8081
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+## REST API
 
-## Contributing
+GET /api/currencies list of avaliable currencies
+GET /api/currencies/rates/refreshby/{ISOcode} refreshes exchange rates with data from external service. {ISOcode} is 3 character ISO code of base currency (USD)
+GET /api/currencies/rates/{ISOcode} retrieves stored exchange rates for base currency (USD)
+GET /api/orders list of all orders made
+POST /api/order creates new order. Expects DTO of following structure {"buy":<iso code>,"amount": <amount>, "for": <iso code>}. In Postman, it Body should be sent as "raw" and of "JSON" type. Example: {"buy":"GBP","amount":100, "for": "USD"}
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+GET /api/order/actions  list of order actions, actions executed when order is created (allow discount for EUR, send mail for GBP)
+Example of result:
+```
+{
+    "data": [
+        {
+            "currency": "EUR",
+            "action": "discount",
+            "parameter": "percentage",
+            "value": "2"
+        },
+        {
+            "currency": "GBP",
+            "action": "sendmail",
+            "parameter": "mail",
+            "value": "menutest@yopmail.com"
+        }
+    ]
+}
+```
+GET /api/order/action/types list of action types (discount, sendmail)
+PATCH /api/order/action/{action}/for/{currency} Updates action, where {action} is name of action (discount or sendmail) and {currency} denotes on whic currency action relates. Example:
 
-## Code of Conduct
+`PATCH /api/order/action/discount/for/EUR` and with body `{parameter: 5}` will set 5% discount on purchasing EUR.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Troubleshooting
+If sail wont start beacuse of port collison, change ports stated in APP_PORT and DB_PORT parameters, then refresh configuration.
