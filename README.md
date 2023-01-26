@@ -59,13 +59,17 @@ means that application is accessible on http://localhost:8081
 
 ## REST API
 
-GET /api/currencies list of avaliable currencies
-GET /api/currencies/rates/refreshby/{ISOcode} refreshes exchange rates with data from external service. {ISOcode} is 3 character ISO code of base currency (USD)
-GET /api/currencies/rates/{ISOcode} retrieves stored exchange rates for base currency (USD)
-GET /api/orders list of all orders made
-POST /api/order creates new order. Expects DTO of following structure {"buy":<iso code>,"amount": <amount>, "for": <iso code>}. In Postman, it Body should be sent as "raw" and of "JSON" type. Example: {"buy":"GBP","amount":100, "for": "USD"}
+`GET /api/currencies` list of avaliable currencies
 
-GET /api/order/actions  list of order actions, actions executed when order is created (allow discount for EUR, send mail for GBP)
+`GET /api/currencies/rates/refreshby/{ISOcode}` refreshes exchange rates with data from external service. {ISOcode} is 3 character ISO code of base currency (USD)
+
+`GET /api/currencies/rates/{ISOcode}` retrieves stored exchange rates for base currency (USD)
+
+`GET /api/orders` list of all orders made
+
+`POST /api/order` creates new order. Expects DTO of following structure {"buy":<iso code>,"amount": <amount>, "for": <iso code>}. In Postman, it Body should be sent as "raw" and of "JSON" type. Example: {"buy":"GBP","amount":100, "for": "USD"}
+
+`GET /api/order/actions`  list of order actions, actions executed when order is created (allow discount for EUR, send mail for GBP)
 Example of result:
 ```
 {
@@ -84,9 +88,11 @@ Example of result:
         }
     ]
 }
+    
 ```
-GET /api/order/action/types list of action types (discount, sendmail)
-PATCH /api/order/action/{action}/for/{currency} Updates action, where {action} is name of action (discount or sendmail) and {currency} denotes on whic currency action relates. Example:
+`GET /api/order/action/types` list of action types (discount, sendmail)
+    
+`PATCH /api/order/action/{action}/for/{currency}` Updates action, where {action} is name of action (discount or sendmail) and {currency} denotes on whic currency action relates. Example:
 
 `PATCH /api/order/action/discount/for/EUR` and with body `{parameter: 5}` will set 5% discount on purchasing EUR.
 
