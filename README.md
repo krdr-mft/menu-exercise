@@ -1,6 +1,6 @@
 # Instalation instructions
 
-It is assumed that you have globaly installed PHP 8.x, Composer and development server (Sail, eg). Clone the project into desired folder
+It is assumed that you have globaly installed PHP 8.x, Composer and Docker. Be sure that you followed instruction stated in [Laravel Getting Started](https://laravel.com/docs/9.x#laravel-and-dockerClone) the project into desired folder
 
 ```
 git clone https://github.com/krdr-mft/menu-exercise.git
@@ -18,6 +18,9 @@ If you choose other method of running application, make sure that name of databa
 1. To create database structer run `php artisan migrate` or `sail artisan migrate`
 2. Seed database with `php artisan db:seed` or `sail artisan db:seed`
 3. If needed, database state can be refreshed with `./vendor/bin/sail artisan migrate:refresh --seed`
+
+## Running
+Application will be servered on localhost:8081. Calling `http://localhost:8081` in browser will open currency purchasing page, as per request.Example call API: http://localhost:8081//api/currencies
 
 ## REST API
 
